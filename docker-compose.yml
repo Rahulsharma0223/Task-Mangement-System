@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  # ---------- MONGO DB ----------
+  mongo:
+    image: mongo:latest
+    container_name: task_manager_mongo
+    restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  # ---------- NESTJS BACKEND ----------
+  backend:
+    build: ./task-manager-backend
+    container_name: task_manager_backend
+    restart: always
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: mongodb://mongo:27017/task_manager
+    # If you have other environment variables, add them here:
+    # NODE_ENV: production
+
+  # ---------- NEXT.JS FRONTEND ----------
+  frontend:
+    build: ./task-manager-frontend
+    container_name: task_manager_frontend
+    restart: always
+    ports:
+      - '3001:3000'
+    depends_on:
+      - backend
+    # If you have environment variables for the frontend, add them here:
+    # environment:
+    #   NEXT_PUBLIC_API_URL: http://localhost:3000
+
+volumes:
+  mongo_data:
